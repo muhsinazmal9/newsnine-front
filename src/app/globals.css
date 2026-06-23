@@ -14,3 +14,20 @@
 body {
   font-family: 'SolaimanLipi', 'Inter', sans-serif;
 }
+
+/* Custom styling for NProgress bar to match the teal theme of the site */
+#nprogress .bar {
+  background: #14b8a6 !important; /* teal-500 */
+  height: 3px !important;
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 10px #14b8a6, 0 0 5px #14b8a6 !important;
+}
+
+#nprogress .spinner-icon {
+  border-top-color: #14b8a6 !important;
+  border-left-color: #14b8a6 !important;
+}
+
+
