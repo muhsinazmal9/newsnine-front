@@ -1,12 +1,18 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import Link from 'next/link'
 import { getHome, articleUrl } from '@/lib/api'
 import AdSlot from '@/components/AdSlot'
+import LazyImage from '@/components/LazyImage'
+import { HomeSkeleton } from '@/components/Skeletons'
 
 const PLACEHOLDER = 'https://placehold.co/300x200';
 
 function Page() {
-    return <PageContent />;
+    return (
+        <Suspense fallback={<HomeSkeleton />}>
+            <PageContent />
+        </Suspense>
+    );
 }
 
 async function PageContent() {
@@ -50,11 +56,7 @@ async function PageContent() {
                                 <div className="relative h-100 rounded-sm overflow-hidden shadow-[0_2px_1px_0_rgba(0,0,0,0.1)] hover:shadow-[0_4px_6px_rgba(0,0,0,0.15)] transition">
 
                                     {/* Background Image */}
-                                    <img
-                                        src={img(hero)}
-                                        alt={hero.title}
-                                        className="absolute inset-0 w-full h-full object-cover"
-                                    />
+                                    <LazyImage src={img(hero)} alt={hero.title} className="absolute inset-0" />
 
                                     {/* Dark Overlay */}
                                     <div className="absolute bottom-0 left-0 w-full h-[30%] bg-linear-to-t from-black/80 via-black/40 to-transparent" />
@@ -74,9 +76,7 @@ async function PageContent() {
 
                         {mainNews.map((news, index) => (
                             <div key={index} className="bg-white rounded-sm shadow-[0_2px_1px_0_rgba(0,0,0,0.1)] overflow-hidden hover:shadow-[0_3px_1px_0_rgba(0,0,0,0.1)] transition">
-                                <div className="relative">
-                                    <img src={img(news)} alt={news.title} className="w-full h-48 object-cover" />
-                                </div>
+                                <LazyImage src={img(news)} alt={news.title} className="w-full h-48" />
                                 <div>
                                     <Link href={detailHref(news)}>
                                         <h3 className="font-bold text-stone-700 hover:text-teal-900 mb-2 py-3 px-4 transition text-lg">{news.title}</h3>
@@ -98,7 +98,7 @@ async function PageContent() {
                                 {latest.map((news, index) => (
                                     <React.Fragment key={index}>
                                         <div className="flex items-start space-x-4">
-                                            <img src={img(news)} alt={news.title} className="w-16 h-12 object-cover" />
+                                            <LazyImage src={img(news)} alt={news.title} className="w-16 h-12 flex-shrink-0" />
                                             <div>
                                                 <Link href={detailHref(news)}>
                                                     <h3 className="text-stone-700 font-bold">{news.title}</h3>
@@ -122,7 +122,7 @@ async function PageContent() {
                                 {mostViewed.map((news, index) => (
                                     <React.Fragment key={index}>
                                         <div className="flex items-start space-x-4">
-                                            <img src={img(news)} alt={news.title} className="w-16 h-12 object-cover" />
+                                            <LazyImage src={img(news)} alt={news.title} className="w-16 h-12 flex-shrink-0" />
                                             <div>
                                                 <Link href={detailHref(news)}>
                                                     <h3 className="text-stone-700 font-bold">{news.title}</h3>
@@ -143,9 +143,7 @@ async function PageContent() {
                 <div className='max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-4'>
                     {breaking.slice(0, 4).map((news, index) => (
                         <div key={index} className="bg-white rounded-sm shadow-[0_2px_1px_0_rgba(0,0,0,0.2)] overflow-hidden hover:shadow-[0_3px_1px_0_rgba(0,0,0,0.2)] transition">
-                            <div className="relative">
-                                <img src={img(news)} alt={news.title} className="w-full h-48 object-cover" />
-                            </div>
+                            <LazyImage src={img(news)} alt={news.title} className="w-full h-48" />
                             <div>
                                 <Link href={detailHref(news)}>
                                     <h3 className="font-bold text-stone-700 hover:text-teal-900 mb-2 py-3 px-4 transition">{news.title}</h3>
@@ -164,7 +162,7 @@ async function PageContent() {
                     <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
                         {jatiyo[0] && (
                             <div className='col-span-2'>
-                                <img src={img(jatiyo[0])} alt={jatiyo[0].title} className="w-full object-cover mb-4" />
+                                <LazyImage src={img(jatiyo[0])} alt={jatiyo[0].title} className="w-full aspect-video mb-4" />
                                 <Link href={detailHref(jatiyo[0])} className="bg-white rounded-sm overflow-hidden pt-5 space-y-3 group">
                                     <h3 className="font-bold text-teal-900 mb-2 text-2xl group-hover:text-teal-800 transition">{jatiyo[0].title}</h3>
                                     <p className="text-stone-500 leading-7 group-hover:text-stone-600 transition">{jatiyo[0].excerpt}</p>
@@ -178,7 +176,7 @@ async function PageContent() {
                                     {jatiyo.map((news, index) => (
                                         <React.Fragment key={index}>
                                             <div className="flex items-start space-x-4 px-4">
-                                                <img src={img(news)} alt={news.title} className="w-16 h-12 object-cover" />
+                                                <LazyImage src={img(news)} alt={news.title} className="w-16 h-12 flex-shrink-0" />
                                                 <div>
                                                     <Link href={detailHref(news)}>
                                                         <h3 className="text-stone-700 font-bold">{news.title}</h3>
@@ -198,7 +196,7 @@ async function PageContent() {
                                 {orthoniti.map((news, index) => (
                                     <React.Fragment key={index}>
                                         <div className="flex items-start space-x-4">
-                                            <img src={img(news)} alt={news.title} className="w-16 h-12 object-cover" />
+                                            <LazyImage src={img(news)} alt={news.title} className="w-16 h-12 flex-shrink-0" />
                                             <div>
                                                 <Link href={detailHref(news)}>
                                                     <h3 className="text-stone-700 font-bold">{news.title}</h3>
@@ -221,7 +219,7 @@ async function PageContent() {
                     <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
                         {antorjatik[0] && (
                             <div className='col-span-2'>
-                                <img src={img(antorjatik[0])} alt={antorjatik[0].title} className="w-full object-cover" />
+                                <LazyImage src={img(antorjatik[0])} alt={antorjatik[0].title} className="w-full aspect-video" />
                                 <div className="rounded-sm overflow-hidden pt-5 space-y-3">
                                     <Link href={detailHref(antorjatik[0])}>
                                         <h3 className="font-bold text-teal-900 mb-2 text-2xl">{antorjatik[0].title}</h3>
@@ -237,7 +235,7 @@ async function PageContent() {
                                     {antorjatik.map((news, index) => (
                                         <React.Fragment key={index}>
                                             <div className="flex items-start space-x-4 px-4">
-                                                <img src={img(news)} alt={news.title} className="w-16 h-12 object-cover" />
+                                                <LazyImage src={img(news)} alt={news.title} className="w-16 h-12 flex-shrink-0" />
                                                 <div>
                                                     <Link href={detailHref(news)}>
                                                         <h3 className="text-stone-700 font-bold">{news.title}</h3>
@@ -257,7 +255,7 @@ async function PageContent() {
                                 {orthoniti.map((news, index) => (
                                     <React.Fragment key={index}>
                                         <div className="flex items-start space-x-4">
-                                            <img src={img(news)} alt={news.title} className="w-16 h-12 object-cover" />
+                                            <LazyImage src={img(news)} alt={news.title} className="w-16 h-12 flex-shrink-0" />
                                             <div>
                                                 <Link href={detailHref(news)}>
                                                     <h3 className="text-stone-700 font-bold">{news.title}</h3>
@@ -290,7 +288,7 @@ async function PageContent() {
                                     {col.items.map((news, index) => (
                                         <React.Fragment key={index}>
                                             <div className="flex items-start space-x-4 px-4">
-                                                <img src={img(news)} alt={news.title} className="w-16 h-12 object-cover" />
+                                                <LazyImage src={img(news)} alt={news.title} className="w-16 h-12 flex-shrink-0" />
                                                 <div>
                                                     <Link href={detailHref(news)}>
                                                         <h3 className="text-stone-700 font-bold">{news.title}</h3>
@@ -323,7 +321,7 @@ async function PageContent() {
                                     {col.items.map((news, index) => (
                                         <React.Fragment key={index}>
                                             <div className="flex items-start space-x-4 px-4">
-                                                <img src={img(news)} alt={news.title} className="w-16 h-12 object-cover" />
+                                                <LazyImage src={img(news)} alt={news.title} className="w-16 h-12 flex-shrink-0" />
                                                 <div>
                                                     <Link href={detailHref(news)}>
                                                         <h3 className="text-stone-700 font-bold">{news.title}</h3>

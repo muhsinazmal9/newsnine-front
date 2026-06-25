@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { FaFacebook, FaTwitter, FaLinkedin, FaWhatsapp } from 'react-icons/fa'
 import { RiZoomInFill, RiZoomOutFill } from 'react-icons/ri'
+import LazyImage from '@/components/LazyImage'
 
 const PLACEHOLDER = 'https://placehold.co/300x200'
 const SIZES = ['text-base', 'text-lg', 'text-xl', 'text-2xl']
@@ -68,7 +69,7 @@ export default function ArticleBody({ article }) {
 
             <article className='rounded-sm shadow-[0_2px_1px_0_rgba(0,0,0,0.1)] overflow-hidden bg-white'>
                 <figure className='space-y-3'>
-                    <img src={article.image || PLACEHOLDER} alt={article.title} className="w-full object-cover" />
+                    <LazyImage src={article.image || PLACEHOLDER} alt={article.title} className="w-full aspect-video" />
                     {(article.image_caption || article.image_credit) && (
                         <figcaption className='text-center text-sm text-stone-500 italic'>
                             {article.image_caption}{article.image_credit ? ` | ছবি: ${article.image_credit}` : ''}
@@ -97,7 +98,7 @@ export default function ArticleBody({ article }) {
                     <div className="px-6 pb-6">
                         <div className="flex gap-3 overflow-x-auto pb-2">
                             {gallery.map((img, i) => (
-                                <img key={i} src={img} alt="" className="h-48 object-cover rounded-sm flex-shrink-0" />
+                                <LazyImage key={i} src={img} alt="" className="w-64 h-48 flex-shrink-0 rounded-sm" />
                             ))}
                         </div>
                     </div>

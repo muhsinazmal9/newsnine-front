@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import Link from 'next/link'
 import { getArticle, getRelated, articleUrl } from '@/lib/api'
 import AdSlot from '@/components/AdSlot'
 import ArticleBody from '@/components/ArticleBody'
+import LazyImage from '@/components/LazyImage'
+import { DetailSkeleton } from '@/components/Skeletons'
 
 const PLACEHOLDER = 'https://placehold.co/300x200';
 
@@ -21,7 +23,15 @@ export async function generateMetadata({ params }) {
     };
 }
 
-export default async function NewsDetail({ params }) {
+export default function NewsDetail({ params }) {
+    return (
+        <Suspense fallback={<DetailSkeleton />}>
+            <NewsDetailContent params={params} />
+        </Suspense>
+    );
+}
+
+async function NewsDetailContent({ params }) {
     const { id } = await params;
 
     // The article is resolved by id; the slug in the URL is purely cosmetic.
@@ -64,7 +74,7 @@ export default async function NewsDetail({ params }) {
                             {related.map((news, index) => (
                                 <React.Fragment key={index}>
                                     <div className="flex items-start space-x-4 px-4">
-                                        <img src={news.image || PLACEHOLDER} alt={news.title} className="w-16 h-12 object-cover" />
+                                        <LazyImage src={news.image || PLACEHOLDER} alt={news.title} className="w-16 h-12 flex-shrink-0" />
                                         <div>
                                             <Link href={articleUrl(news)}>
                                                 <h3 className="text-stone-700 font-bold">{news.title}</h3>

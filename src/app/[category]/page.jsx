@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import Link from 'next/link'
 import { getCategory, articleUrl } from '@/lib/api'
+import LazyImage from '@/components/LazyImage'
+import { GridSkeleton } from '@/components/Skeletons'
 
 const PLACEHOLDER = 'https://placehold.co/300x200'
 
@@ -10,7 +12,15 @@ export async function generateMetadata({ params }) {
     return { title: category?.name || 'বিভাগ' }
 }
 
-export default async function SingleCategory({ params, searchParams }) {
+export default function SingleCategory({ params, searchParams }) {
+    return (
+        <Suspense fallback={<GridSkeleton />}>
+            <CategoryContent params={params} searchParams={searchParams} />
+        </Suspense>
+    )
+}
+
+async function CategoryContent({ params, searchParams }) {
     const { category: slug } = await params
     const sp = await searchParams
     const page = parseInt(sp?.page) || 1
@@ -31,11 +41,7 @@ export default async function SingleCategory({ params, searchParams }) {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     {hero && (
                         <div className="col-span-1 md:col-span-2 relative h-96 rounded-sm overflow-hidden shadow-[0_2px_1px_0_rgba(0,0,0,0.1)] hover:shadow-[0_4px_6px_rgba(0,0,0,0.15)] transition">
-                            <img
-                                src={hero.image || PLACEHOLDER}
-                                alt={hero.title}
-                                className="absolute inset-0 w-full h-full object-cover"
-                            />
+                            <LazyImage src={hero.image || PLACEHOLDER} alt={hero.title} className="absolute inset-0" />
                             <div className="absolute bottom-0 left-0 w-full h-[30%] bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                             <div className="relative z-10 flex flex-col justify-end h-full p-4">
                                 <Link href={articleUrl(hero)}>
@@ -49,9 +55,7 @@ export default async function SingleCategory({ params, searchParams }) {
 
                     {rest.map((news, index) => (
                         <div key={index} className="bg-white rounded-sm shadow-[0_2px_1px_0_rgba(0,0,0,0.1)] overflow-hidden hover:shadow-[0_3px_1px_0_rgba(0,0,0,0.1)] transition">
-                            <div className="relative">
-                                <img src={news.image || PLACEHOLDER} alt={news.title} className="w-full h-48 object-cover" />
-                            </div>
+                            <LazyImage src={news.image || PLACEHOLDER} alt={news.title} className="w-full h-48" />
                             <div>
                                 <Link href={articleUrl(news)}>
                                     <h3 className="font-bold text-stone-800 hover:text-teal-900 mb-2 py-3 px-4 transition">{news.title}</h3>

@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import Link from 'next/link'
 import { search, articleUrl } from '@/lib/api'
+import LazyImage from '@/components/LazyImage'
+import { SearchSkeleton } from '@/components/Skeletons'
 
 const PLACEHOLDER = 'https://placehold.co/300x200'
 
@@ -10,7 +12,15 @@ export async function generateMetadata({ searchParams }) {
     return { title: q ? `"${q}" অনুসন্ধান` : 'অনুসন্ধান' }
 }
 
-export default async function SearchResult({ searchParams }) {
+export default function SearchResult({ searchParams }) {
+    return (
+        <Suspense fallback={<SearchSkeleton />}>
+            <SearchContent searchParams={searchParams} />
+        </Suspense>
+    )
+}
+
+async function SearchContent({ searchParams }) {
     const params = await searchParams
     const query = params?.q || ''
     const page = parseInt(params?.page) || 1
@@ -38,20 +48,19 @@ export default async function SearchResult({ searchParams }) {
                     </div>
                 ) : (
                     <>
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="flex flex-col gap-3">
                             {results.map((news, index) => (
-                                <div key={index} className="bg-white rounded-sm shadow-[0_2px_1px_0_rgba(0,0,0,0.1)] overflow-hidden hover:shadow-[0_3px_1px_0_rgba(0,0,0,0.1)] transition">
-                                    <div className="relative">
-                                        <img src={news.image || PLACEHOLDER} alt={news.title} className="w-full h-48 object-cover" />
-                                    </div>
-                                    <div>
-                                        <Link href={articleUrl(news)}>
-                                            <h3 className="font-bold text-stone-800 hover:text-teal-900 mb-2 py-3 px-4 transition">{news.title}</h3>
-                                        </Link>
+                                <div key={index} className="flex gap-4 bg-white rounded-sm shadow-[0_2px_1px_0_rgba(0,0,0,0.1)] overflow-hidden hover:shadow-[0_3px_1px_0_rgba(0,0,0,0.1)] transition">
+                                    <LazyImage src={news.image || PLACEHOLDER} alt={news.title} className="w-32 sm:w-56 h-24 sm:h-36 flex-shrink-0" />
+                                    <div className="flex-1 min-w-0 py-3 pr-4 flex flex-col justify-center">
                                         {news.category && (
-                                            <div className="p-3 border-t border-stone-200">
-                                                <Link href={`/${news.category.slug}`} className="text-teal-700 text-sm hover:text-teal-900">{news.category.name}</Link>
-                                            </div>
+                                            <Link href={`/${news.category.slug}`} className="self-start text-teal-700 text-xs font-bold hover:text-teal-900 transition">{news.category.name}</Link>
+                                        )}
+                                        <Link href={articleUrl(news)}>
+                                            <h3 className="font-bold text-stone-800 hover:text-teal-900 transition text-base sm:text-lg mt-1 line-clamp-2">{news.title}</h3>
+                                        </Link>
+                                        {news.excerpt && (
+                                            <p className="text-stone-500 text-sm mt-2 line-clamp-2 hidden sm:block">{news.excerpt}</p>
                                         )}
                                     </div>
                                 </div>
