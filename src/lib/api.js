@@ -77,3 +77,9 @@ export async function getSettings() {
     const data = await apiGet('/settings', { revalidate: 300 });
     return data?.data ?? null;
 }
+
+export async function getAd(placement) {
+    const data = await apiGet('/ads', { params: { placement } });
+    const ads = data?.data;
+    return Array.isArray(ads) && ads.length > 0 ? ads[0] : null;
+}

@@ -1,10 +1,10 @@
-import React, { Suspense } from 'react'
-import Link from 'next/link'
-import { getCategory, articleUrl } from '@/lib/api'
-import LazyImage from '@/components/LazyImage'
-import { GridSkeleton } from '@/components/Skeletons'
-
-const PLACEHOLDER = 'https://placehold.co/300x200'
+import { Suspense } from 'react'
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { getQueryClient } from '@/lib/get-query-client'
+import { categoryOptions } from '@/lib/queries'
+import { getCategory } from '@/lib/api'
+import { PageLoader } from '@/components/Skeletons'
+import CategoryContent from './_content'
 
 export async function generateMetadata({ params }) {
     const { category: slug } = await params
@@ -12,75 +12,19 @@ export async function generateMetadata({ params }) {
     return { title: category?.name || 'বিভাগ' }
 }
 
-export default function SingleCategory({ params, searchParams }) {
-    return (
-        <Suspense fallback={<GridSkeleton />}>
-            <CategoryContent params={params} searchParams={searchParams} />
-        </Suspense>
-    )
-}
-
-async function CategoryContent({ params, searchParams }) {
+export default async function SingleCategory({ params, searchParams }) {
     const { category: slug } = await params
     const sp = await searchParams
     const page = parseInt(sp?.page) || 1
 
-    const { category, articles, meta } = await getCategory(slug, 16, page)
-    const title = category?.name || 'বিভাগ'
-    const hero = articles[0]
-    const rest = articles.slice(1)
-    const lastPage = meta?.last_page ?? 1
+    const queryClient = getQueryClient()
+    await queryClient.prefetchQuery(categoryOptions(slug, page))
 
     return (
-        <>
-            <div className="max-w-7xl mx-auto px-4 pb-12">
-                <div className="mb-6">
-                    <h1 className='text-2xl font-bold text-teal-900 border-b border-teal-900/50 pb-2'>{title}</h1>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {hero && (
-                        <div className="col-span-1 md:col-span-2 relative h-96 rounded-sm overflow-hidden shadow-[0_2px_1px_0_rgba(0,0,0,0.1)] hover:shadow-[0_4px_6px_rgba(0,0,0,0.15)] transition">
-                            <LazyImage src={hero.image || PLACEHOLDER} alt={hero.title} className="absolute inset-0" />
-                            <div className="absolute bottom-0 left-0 w-full h-[30%] bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                            <div className="relative z-10 flex flex-col justify-end h-full p-4">
-                                <Link href={articleUrl(hero)}>
-                                    <h3 className="text-white text-3xl font-bold leading-snug ">
-                                        {hero.title}
-                                    </h3>
-                                </Link>
-                            </div>
-                        </div>
-                    )}
-
-                    {rest.map((news, index) => (
-                        <div key={index} className="bg-white rounded-sm shadow-[0_2px_1px_0_rgba(0,0,0,0.1)] overflow-hidden hover:shadow-[0_3px_1px_0_rgba(0,0,0,0.1)] transition">
-                            <LazyImage src={news.image || PLACEHOLDER} alt={news.title} className="w-full h-48" />
-                            <div>
-                                <Link href={articleUrl(news)}>
-                                    <h3 className="font-bold text-stone-800 hover:text-teal-900 mb-2 py-3 px-4 transition">{news.title}</h3>
-                                </Link>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {lastPage > 1 && (
-                    <div className="flex justify-center items-center gap-4 mt-8">
-                        {page > 1 && (
-                            <Link href={page === 2 ? `/${slug}` : `/${slug}?page=${page - 1}`} className="px-4 py-2 bg-teal-900 text-white text-sm rounded hover:bg-teal-800 transition">
-                                ← আগের পৃষ্ঠা
-                            </Link>
-                        )}
-                        <span className="text-stone-500 text-sm">{page} / {lastPage}</span>
-                        {page < lastPage && (
-                            <Link href={`/${slug}?page=${page + 1}`} className="px-4 py-2 bg-teal-900 text-white text-sm rounded hover:bg-teal-800 transition">
-                                পরের পৃষ্ঠা →
-                            </Link>
-                        )}
-                    </div>
-                )}
-            </div>
-        </>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <Suspense fallback={<PageLoader />}>
+                <CategoryContent />
+            </Suspense>
+        </HydrationBoundary>
     )
 }

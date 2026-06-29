@@ -1,8 +1,10 @@
 import React from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { FaFacebook, FaTwitter, FaYoutube, FaInstagram } from 'react-icons/fa'
 import AdSlot from '@/components/AdSlot'
 import NavBar from '@/components/NavBar'
+import QueryProvider from '@/components/QueryProvider'
 import SubscribeForm from '@/components/SubscribeForm'
 import { getMenuCategories, getSettings } from '@/lib/api'
 import './globals.css'
@@ -31,12 +33,20 @@ export default async function MainLayout({ children }) {
     return (
         <html>
             <body>
+                <QueryProvider>
                 <div className="min-h-screen bg-stone-100 font-tiro">
                     <header className="bg-white">
                         <div className="max-w-7xl mx-auto px-4 py-4">
                             <div className="flex items-center justify-between gap-4">
                                 <Link href="/">
-                                    <img src={logo} alt={siteName} />
+                                    <Image
+                                        src={logo}
+                                        alt={siteName}
+                                        width={240}
+                                        height={64}
+                                        priority
+                                        className="h-16 w-auto object-contain"
+                                    />
                                 </Link>
                                 <AdSlot placement="header" className="w-full h-24 bg-stone-200" />
                             </div>
@@ -97,6 +107,7 @@ export default async function MainLayout({ children }) {
                         Developed with <span className="text-red-500">❤</span> by <a href="https://muhsinazmal.com" target="_blank" rel="noopener noreferrer" className="hover:underline text-green-400">Muhsin</a>
                     </div>
                 </div>
+                </QueryProvider>
             </body>
         </html>
     )

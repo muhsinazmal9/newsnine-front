@@ -1,5 +1,14 @@
 import React from 'react'
 
+/* Centered round spinner — use as a simple Suspense fallback. */
+export function PageLoader() {
+    return (
+        <div className="flex items-center justify-center min-h-[400px]">
+            <div className="w-12 h-12 rounded-full border-4 border-stone-200 border-t-teal-700 animate-spin" />
+        </div>
+    )
+}
+
 /* A single shimmering placeholder block. */
 export function Shimmer({ className = '' }) {
     return <div className={`skeleton-shimmer rounded-sm ${className}`} />

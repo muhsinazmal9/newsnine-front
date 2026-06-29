@@ -1,31 +1,33 @@
 'use client'
 
 import { useState } from 'react'
+import { useMutation } from '@tanstack/react-query'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
 
 export default function SubscribeForm() {
     const [email, setEmail] = useState('')
-    const [status, setStatus] = useState(null) // null | 'loading' | 'success' | 'error'
 
-    const submit = async (e) => {
-        e.preventDefault()
-        if (!email.trim()) return
-        setStatus('loading')
-        try {
+    const mutation = useMutation({
+        mutationFn: async (emailValue) => {
             const res = await fetch(`${API_BASE}/subscribers`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ email }),
+                body: JSON.stringify({ email: emailValue }),
             })
-            setStatus(res.ok ? 'success' : 'error')
-        } catch {
-            setStatus('error')
-        }
+            if (!res.ok) throw new Error('Subscribe failed')
+            return res.json()
+        },
+    })
+
+    if (mutation.isSuccess) {
+        return <p className="text-green-400 text-sm mt-2">সাবস্ক্রাইব করার জন্য ধন্যবাদ!</p>
     }
 
-    if (status === 'success') {
-        return <p className="text-green-400 text-sm mt-2">সাবস্ক্রাইব করার জন্য ধন্যবাদ!</p>
+    const submit = (e) => {
+        e.preventDefault()
+        if (!email.trim()) return
+        mutation.mutate(email)
     }
 
     return (
@@ -41,13 +43,13 @@ export default function SubscribeForm() {
                 />
                 <button
                     type="submit"
-                    disabled={status === 'loading'}
+                    disabled={mutation.isPending}
                     className="px-3 py-1.5 text-sm bg-teal-700 hover:bg-teal-600 text-white rounded transition disabled:opacity-50 cursor-pointer"
                 >
-                    {status === 'loading' ? '...' : 'সাবস্ক্রাইব'}
+                    {mutation.isPending ? '...' : 'সাবস্ক্রাইব'}
                 </button>
             </form>
-            {status === 'error' && <p className="text-red-400 text-xs mt-1">ত্রুটি হয়েছে, আবার চেষ্টা করুন।</p>}
+            {mutation.isError && <p className="text-red-400 text-xs mt-1">ত্রুটি হয়েছে, আবার চেষ্টা করুন।</p>}
         </div>
     )
 }
